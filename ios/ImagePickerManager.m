@@ -353,7 +353,15 @@ RCT_EXPORT_METHOD(showImagePicker:(NSDictionary *)options callback:(RCTResponseS
             }
 
             image = [self fixOrientation:image];  // Rotate the image for upload to web
-
+            CIImage *ciImage = [CIImage imageWithCGImage:image.CGImage ];
+            //2.初始化一个监测器
+            CIDetector*detector = [CIDetector detectorOfType:CIDetectorTypeQRCode context:nil options:@{ CIDetectorAccuracy : CIDetectorAccuracyHigh }];
+            // 2.2利用探测器探测数据
+            NSArray *arr = [detector featuresInImage:ciImage];
+            if(arr.count){
+                CIQRCodeFeature *feature = [arr firstObject];
+                self.response[@"qrString"] = feature.messageString;
+            }
             // If needed, downscale image
             float maxWidth = image.size.width;
             float maxHeight = image.size.height;
